@@ -1,10 +1,11 @@
 # KAZ-Root-Cert-Detection
+Русский текст ниже
+
 Program to detect and remove the root level SSL certificates installed by NCALayer program
 
 Compiled program can be found here: https://github.com/GeoDirk/KAZ-Root-Cert-Detection/releases/tag/v1.0.0.0
 
 
-Русский текст ниже Russian text is below
 
 I was made aware recently of a newer program that you need to install in order accomplish just about anything with the Kazakh https://egov.kz government website (family, education, taxes, health care, etc.).  For example, if you go to that website, you are greeted with this message:
 
