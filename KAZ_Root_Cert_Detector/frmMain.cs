@@ -51,7 +51,7 @@ namespace KAZ_Root_Cert_Detector
                 this.Text = "Kazakhstan Root Cert Detection   Version: " + version.ToString();
 
                 btnClose.Text = "Close";
-                btnRemoveCerts.Text = "Remove KAZ Root Certificates";
+                btnRemoveCerts.Text = "Remove KAZ Certificates";
                 lvCerts.Columns[0].Text = "Friendly Name";
                 lvCerts.Columns[1].Text = "Issuer";
                 lvCerts.Columns[2].Text = "Expiration Date";
@@ -64,8 +64,8 @@ namespace KAZ_Root_Cert_Detector
                 this.Text = "Kazakhstan Root Cert Detection   версия: " + version.ToString();
 
                 btnClose.Text = "Закрыть";
-                btnRemoveCerts.Text = "Удалить Казахстанские корневые сертификаты";
-                lvCerts.Columns[0].Text = "Дружественное имя";
+                btnRemoveCerts.Text = "Удалить Казахстанские сертификаты";
+                lvCerts.Columns[0].Text = "Название";
                 lvCerts.Columns[1].Text = "Кем был выпущен";
                 lvCerts.Columns[2].Text = "Дата окончания действия";
                 lvCerts.Columns[3].Text = "Отпечаток";
@@ -127,7 +127,38 @@ namespace KAZ_Root_Cert_Detector
                 lvCerts.Items.Add(item);
 
                 //check for KAZ CN
-                if (c.Issuer.Contains("C=KZ,"))
+                if (c.Issuer.Contains("C=KZ"))
+                {
+                    lvCerts.Items[lvCerts.Items.Count - 1].BackColor = Color.Red;
+                    _sCertThumb.Add(c.Thumbprint);
+                    iDetected++;
+                }
+
+            }
+            store.Close();
+
+            //open the ROOT store of the CurrentUser and iterate through the certs
+            store = new X509Store(StoreName.CertificateAuthority, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            foreach (X509Certificate2 c in store.Certificates)
+            {
+                ListViewItem item = new ListViewItem(c.FriendlyName);
+                item.SubItems.Add(c.Issuer);
+                item.SubItems.Add(c.NotAfter.Date.ToShortDateString());
+                item.SubItems.Add(c.Thumbprint);
+                item.SubItems.Add(c.SerialNumber);
+                item.SubItems.Add(store.Location + "/" + store.Name);
+                lvCerts.Items.Add(item);
+
+
+                //if (c.SerialNumber.StartsWith("3D957"))
+                //{
+                //    MessageBox.Show(c.ToString());
+                //    MessageBox.Show(c.Issuer);
+                //}
+
+                //check for KAZ CN
+                if (c.Issuer.Contains("C=KZ"))
                 {
                     lvCerts.Items[lvCerts.Items.Count - 1].BackColor = Color.Red;
                     _sCertThumb.Add(c.Thumbprint);
@@ -184,6 +215,29 @@ namespace KAZ_Root_Cert_Detector
             }
             store.Close();
 
+            store = new X509Store(StoreName.CertificateAuthority, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadWrite);
+
+            foreach (string sThumb in _sCertThumb)
+            {
+                X509Certificate2Collection col = store.Certificates.Find(X509FindType.FindByThumbprint, sThumb, false);
+
+                X509Chain ch = new X509Chain();
+
+                if (col.Count > 0)
+                {
+                    ch.Build(col[0]);
+                    X509Certificate2Collection allCertsInChain = new X509Certificate2Collection();
+
+                    foreach (X509ChainElement el in ch.ChainElements)
+                    {
+                        allCertsInChain.Add(el.Certificate);
+                    }
+                    store.RemoveRange(allCertsInChain);
+                }
+            }
+            store.Close();
+
             DetectCerts(false);
         }
 
@@ -194,11 +248,11 @@ namespace KAZ_Root_Cert_Detector
 
         private void btnRemoveCerts_Click(object sender, EventArgs e)
         {
-            string sTmp = "Do you wish to remove the Kazakhstan Root Certificates and disable the launcher program for them?";
+            string sTmp = "Do you wish to remove the Kazakhstan Certificates and disable the launcher program for them?";
             string sTmpHeader = "Root Certs Detected";
             if (_Eng != true)
             {
-                sTmp = "Вы хотите удалить Казахстанские корневые сертификаты и отключить программу их запуска?";
+                sTmp = "Вы хотите удалить Казахстанские сертификаты и отключить программу их запуска?";
                 sTmpHeader = "Обнаружены корневые сертификаты";
             }
 

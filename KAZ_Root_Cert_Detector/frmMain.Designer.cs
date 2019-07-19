@@ -110,9 +110,9 @@
             this.btnRemoveCerts.Enabled = false;
             this.btnRemoveCerts.Location = new System.Drawing.Point(13, 414);
             this.btnRemoveCerts.Name = "btnRemoveCerts";
-            this.btnRemoveCerts.Size = new System.Drawing.Size(222, 23);
+            this.btnRemoveCerts.Size = new System.Drawing.Size(235, 23);
             this.btnRemoveCerts.TabIndex = 2;
-            this.btnRemoveCerts.Text = "Remove KAZ Root Certificates";
+            this.btnRemoveCerts.Text = "Remove KAZ Certificates";
             this.btnRemoveCerts.UseVisualStyleBackColor = true;
             this.btnRemoveCerts.Click += new System.EventHandler(this.btnRemoveCerts_Click);
             // 
